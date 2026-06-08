@@ -19,18 +19,21 @@ if [[ -f $LOG_FILE ]]; then
 			exit 0
 		fi
 
-		loginctl suspend
+		systemctl suspend
 		exit 0
 	else
 		rm -f "$LOG_FILE"
 	fi
 fi
 
+sleep 20
 notify-send "Starting pomodoro" "Happy work master" -a "Nino"
 sleep 1200
 notify-send "Rest time master" "Computer will be suspend in 5 seconds" -a "Nino"
 sleep 300
+notify-send "It's time to rest" "Happy rest, master!" -a "Nino"
+sleep 10
 
 date +%s > $LOG_FILE
 
-loginctl suspend
+systemctl suspend
