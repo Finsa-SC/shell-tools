@@ -40,14 +40,21 @@ check_exist_file() {
         read -p "File already exists, do you want to override with new file? [Y/n]: " CONTINUE_EXIST
     
         local CONTINUE_LOWER="${CONTINUE_EXIST,,}"
-        if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
-            if ! flush_file "$1"; then
-                return 1
-            fi
-        else
-            logger "WARN" "Making script canceled."
-            return 1
-        fi
+        case "$CONTINUE_LOWER" in
+            y|yes)
+                if ! flush_file "$1"; then
+                    return 1
+                fi
+                ;;
+            n|no)
+                logger "INFO" "Decide to not override script"
+                return 3 
+                ;;
+            *)
+                logger "ERROR" "Invalid option."
+                return 2
+                ;;
+        esac
     fi
     return 0
 }
@@ -62,10 +69,11 @@ else
     else
         FINALNAME="$NAMEFILE"
     fi
-
-    if ! check_exist_file "$FINALNAME"; then
-        exit 1
-    fi
+    
+    # Checking file existsention
+    check_exist_file "$FINALNAME"
+    CHECK_RESULT=$?
+    (( CHECK_RESULT != 0 )) && exit "$CHECK_RESULT"
 
     initialize_script "$FINALNAME"
     open_script "$OPEN_SCRIPT" "$FINALNAME"
