@@ -29,11 +29,13 @@ else
     if [[ -f "$FINALNAME" ]]; then
         read -p "File already exists, do you want to override with new file? [Y/n]: " CONTINUE_EXIST
     
-        if [[ "${CONTINUE_EXIST}" == "y" ]]; then
+        CONTINUE_LOWER="${CONTINUE_EXIST,,}"
+        if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
             if !flush_file "$FINALNAME"; then
                 exit 1
             fi
         else
+            echo "Making script canceled."
             exit 0
         fi
     fi
