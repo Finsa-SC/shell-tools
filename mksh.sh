@@ -14,6 +14,15 @@ flush_file() {
     fi
 }
 
+initialize_script() {
+    echo "#!/bin/bash" > "$1"
+    if chmod +x "$1"; then
+        echo "Creating script completed!"
+    else
+        echo "Creating script success but there's a problem when updating script permission"
+    fi
+}
+
 if [[ -z "$NAMEFILE" ]]; then
     echo "Please input file name first"
     exit 1
@@ -40,13 +49,7 @@ else
         fi
     fi
 
-    # Initialize script
-    echo "#!/bin/bash" > "$FINALNAME"
-    if chmod +x "$FINALNAME"; then
-        echo "Creating script completed!"
-    else
-        echo "Creating script success but there's a problem when updating script permission"
-    fi
+    initialize_script "$FINALNAME"
 
     # Auto open script
     if $OPEN_SCRIPT; then
