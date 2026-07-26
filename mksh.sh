@@ -4,12 +4,12 @@ NAMEFILE=$1
 OPEN_SCRIPT=true
 
 logger() {
-    echo "$(datetime) [$1] $2"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [$1] $2"
 }
 
 flush_file() {
     logger "INFO" "Flushing $1..."
-    if cat /dev/null > "$1"; then
+    if : > "$1"; then
         logger "INFO" "Flushing $1 success"
         return 0
     else
@@ -36,22 +36,20 @@ open_script() {
 
 check_exist_file() { 
     if [[ -f "$1" ]]; then
+        local CONTINUE_EXIST
         read -p "File already exists, do you want to override with new file? [Y/n]: " CONTINUE_EXIST
     
-        CONTINUE_LOWER="${CONTINUE_EXIST,,}"
+        local CONTINUE_LOWER="${CONTINUE_EXIST,,}"
         if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
-            if !flush_file "$1"; then
-                logger "ERROR" "Failed to flush $1."
+            if ! flush_file "$1"; then
                 return 1
-            else
-                logger "INFO" "$1 has been flushed"
-                return 0
             fi
         else
             logger "WARN" "Making script canceled."
             return 1
         fi
     fi
+    return 0
 }
 
 if [[ -z "$NAMEFILE" ]]; then
@@ -65,12 +63,12 @@ else
         FINALNAME="$NAMEFILE"
     fi
 
-    if check_exist_file "$FINALNAME"; then
+    if ! check_exist_file "$FINALNAME"; then
         exit 1
     fi
 
     initialize_script "$FINALNAME"
     open_script "$OPEN_SCRIPT" "$FINALNAME"
 
-    logger "INFO" "Saved as $FINALNAME"
+    logger "INFO" "Script saved as $FINALNAME"
 fi
