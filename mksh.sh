@@ -3,13 +3,13 @@
 NAMEFILE=$1
 OPEN_SCRIPT=true
 
-override_exist_file() {
-    echo "Overriding $1"
+flush_file() {
+    echo "Flushing $1..."
     if cat /dev/null > "$1"; then
-        echo "Overriding $1 success"
+        echo "Flushing $1 success"
         return 0
     else
-        echo "Failed to override $1"
+        echo "Failed to flush $1"
         return 1
     fi
 }
@@ -30,7 +30,7 @@ else
         read -p "File already exists, do you want to override with new file? [Y/n]: " CONTINUE_EXIST
     
         if [[ "${CONTINUE_EXIST}" == "y" ]]; then
-            if !override_exist_file; then
+            if !flush_file "$FINALNAME"; then
                 exit 1
             fi
         else
@@ -47,7 +47,7 @@ else
     fi
 
     # Auto open script
-    if [[ $OPEN_SCRIPT ]]; then
+    if $OPEN_SCRIPT; then
         echo "Opening file..."
         vim "$FINALNAME"
     fi
