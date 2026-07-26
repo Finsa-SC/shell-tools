@@ -30,6 +30,23 @@ open_script() {
     fi
 }
 
+check_exist_file() { 
+    if [[ -f "$1" ]]; then
+        read -p "File already exists, do you want to override with new file? [Y/n]: " CONTINUE_EXIST
+    
+        CONTINUE_LOWER="${CONTINUE_EXIST,,}"
+        if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
+            if !flush_file "$1"; then
+                echo "Failed to flush $1."
+                exit 1
+            fi
+        else
+            echo "Making script canceled."
+            exit 0
+        fi
+    fi
+}
+
 if [[ -z "$NAMEFILE" ]]; then
     echo "Please input file name first"
     exit 1
@@ -41,20 +58,7 @@ else
       FINALNAME="$NAMEFILE"
     fi
 
-    # Check existing file
-    if [[ -f "$FINALNAME" ]]; then
-        read -p "File already exists, do you want to override with new file? [Y/n]: " CONTINUE_EXIST
-    
-        CONTINUE_LOWER="${CONTINUE_EXIST,,}"
-        if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
-            if !flush_file "$FINALNAME"; then
-                exit 1
-            fi
-        else
-            echo "Making script canceled."
-            exit 0
-        fi
-    fi
+    check_exist_file $FINALNAME
 
     initialize_script "$FINALNAME"
     open_script "$CONTINUE_LOWER" "$FINALNAME"
