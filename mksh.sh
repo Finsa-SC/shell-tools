@@ -23,6 +23,13 @@ initialize_script() {
     fi
 }
 
+open_script() {
+    if $1; then
+        echo "Opening file..."
+        vim "$2"
+    fi
+}
+
 if [[ -z "$NAMEFILE" ]]; then
     echo "Please input file name first"
     exit 1
@@ -50,12 +57,7 @@ else
     fi
 
     initialize_script "$FINALNAME"
+    open_script "$CONTINUE_LOWER" "$FINALNAME"
 
-    # Auto open script
-    if $OPEN_SCRIPT; then
-        echo "Opening file..."
-        vim "$FINALNAME"
-    fi
     echo "Saved as $FINALNAME"
-
 fi
