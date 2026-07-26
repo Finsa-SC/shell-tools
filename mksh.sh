@@ -38,11 +38,14 @@ check_exist_file() {
         if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
             if !flush_file "$1"; then
                 echo "Failed to flush $1."
-                exit 1
+                return 1
+            else
+                echo "$1 has been flushed"
+                return 0
             fi
         else
             echo "Making script canceled."
-            exit 0
+            return 1
         fi
     fi
 }
@@ -53,15 +56,17 @@ if [[ -z "$NAMEFILE" ]]; then
 else
     # Check suffix
     if [[ "$NAMEFILE" != *.sh ]]; then
-      FINALNAME="$NAMEFILE.sh"
+        FINALNAME="$NAMEFILE.sh"
     else
-      FINALNAME="$NAMEFILE"
+        FINALNAME="$NAMEFILE"
     fi
 
-    check_exist_file $FINALNAME
+    if check_exist_file "$FINALNAME"; then
+        exit 1
+    fi
 
     initialize_script "$FINALNAME"
-    open_script "$CONTINUE_LOWER" "$FINALNAME"
+    open_script "$OPEN_SCRIPT" "$FINALNAME"
 
     echo "Saved as $FINALNAME"
 fi
