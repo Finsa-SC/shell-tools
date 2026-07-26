@@ -3,13 +3,17 @@
 NAMEFILE=$1
 OPEN_SCRIPT=true
 
+logger() {
+    echo "$(datetime) [$1] $2"
+}
+
 flush_file() {
-    echo "Flushing $1..."
+    logger "INFO" "Flushing $1..."
     if cat /dev/null > "$1"; then
-        echo "Flushing $1 success"
+        logger "INFO" "Flushing $1 success"
         return 0
     else
-        echo "Failed to flush $1"
+        logger "ERROR" "Failed to flush $1"
         return 1
     fi
 }
@@ -17,15 +21,15 @@ flush_file() {
 initialize_script() {
     echo "#!/bin/bash" > "$1"
     if chmod +x "$1"; then
-        echo "Creating script completed!"
+        logger "INFO" "Creating script completed!"
     else
-        echo "Creating script success but there's a problem when updating script permission"
+        logger "WARN" "Creating script success but there's a problem when updating script permission"
     fi
 }
 
 open_script() {
     if $1; then
-        echo "Opening file..."
+        logger "INFO" "Opening file..."
         vim "$2"
     fi
 }
@@ -37,21 +41,21 @@ check_exist_file() {
         CONTINUE_LOWER="${CONTINUE_EXIST,,}"
         if [[ "$CONTINUE_LOWER" == "y" || "$CONTINUE_LOWER" == "yes" ]]; then
             if !flush_file "$1"; then
-                echo "Failed to flush $1."
+                logger "ERROR" "Failed to flush $1."
                 return 1
             else
-                echo "$1 has been flushed"
+                logger "INFO" "$1 has been flushed"
                 return 0
             fi
         else
-            echo "Making script canceled."
+            logger "WARN" "Making script canceled."
             return 1
         fi
     fi
 }
 
 if [[ -z "$NAMEFILE" ]]; then
-    echo "Please input file name first"
+    logger "ERROR" "Please input file name first"
     exit 1
 else
     # Check suffix
@@ -68,5 +72,5 @@ else
     initialize_script "$FINALNAME"
     open_script "$OPEN_SCRIPT" "$FINALNAME"
 
-    echo "Saved as $FINALNAME"
+    logger "INFO" "Saved as $FINALNAME"
 fi
