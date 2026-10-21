@@ -18,6 +18,23 @@ function is_site_already_exist() # file_path: Path -> bool
 	return 1
 }
 
+function generate_static() # file_path: Path -> None
+{
+  cat > "$1" <<'DOC'
+server {
+    listen 80;
+    server_name example.com;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+DOC
+}
+
 function generate_server() # file_path: Path -> None
 {
   cat > "$1" <<'DOC'
@@ -34,10 +51,10 @@ DOC
 
 function enabled_sites() # site_name: str -> None
 {
-	ln -sf ../site-available/"$1" ./sites-enabled/"$1"
+	ln -sf ../sites-available/"$1" ./sites-enabled/"$1"
 }
 
-function main() # server_name: str -> None
+function main() # server_name: str, is_static: bool -> None
 {
 	[[ -z $1 ]] && echo "Missing argument: server_name." && exit 1
 
@@ -63,7 +80,11 @@ function main() # server_name: str -> None
 	echo "Validate passed."
 
 	echo "Generating server template..."
-	generate_server "$available_site"
+	if [[ "$2" == "static" ]]; then
+	    generate_static "$available_site"
+	else
+	    generate_server "$available_site"
+	fi
 	echo "Generate completed, $available_site has been created."
 
 	echo "Creting symlink for $available_site..."
@@ -74,4 +95,4 @@ function main() # server_name: str -> None
 	echo "Job done."
 }
 
-main "$1"
+main "$1" "$2"
